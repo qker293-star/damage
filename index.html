@@ -13,12 +13,23 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
-        /* VIGNETTE & BG */
-        .vignette { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%); pointer-events: none; z-index: 8; }
-        .hero-bg { position: fixed; top: -10%; left: -10%; width: 120%; height: 120%; background: url('Дамагерс.png') center/cover; filter: brightness(0.2); z-index: -1; transition: 0.1s ease-out; }
+        /* NOISE EFFECT */
+        body::after {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Net_Granular_Noise.png');
+            opacity: 0.04; pointer-events: none; z-index: 9999;
+        }
+
+        /* VIGNETTE */
+        .vignette {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
+            pointer-events: none; z-index: 8;
+        }
 
         .hero { height: 100vh; width: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
-        .hero h1 { font-family: 'Syncopate'; font-size: clamp(3rem, 18vw, 10rem); letter-spacing: -10px; line-height: 0.8; }
+        .hero-bg { position: fixed; top: -10%; left: -10%; width: 120%; height: 120%; background: url('Дамагерс.png') center/cover; filter: brightness(0.2); z-index: -1; transition: 0.1s ease-out; }
+        .hero h1 { font-family: 'Syncopate'; font-size: clamp(3rem, 18vw, 10rem); letter-spacing: -10px; line-height: 0.8; transition: 0.3s; }
 
         /* TRACKLIST */
         .content { position: relative; z-index: 10; background: linear-gradient(to bottom, transparent, #000 20%); padding: 150px 10%; }
@@ -27,41 +38,37 @@
         .t-row span:first-child { font-size: 0.7rem; color: var(--p); margin-right: 25px; }
         .t-row span:last-child { font-size: 1.3rem; letter-spacing: 2px; transition: 0.3s; }
         .t-row:hover span:last-child { letter-spacing: 8px; color: var(--p); }
+        .locked { opacity: 0.03 !important; cursor: default; }
 
-        /* MORPHING PLAYER */
-        #player-container {
+        /* DYNAMIC PLAYER BOX */
+        #custom-player {
             position: fixed; bottom: 40px; left: 40px; height: 60px;
-            width: calc(100% - 80px); background: rgba(15, 15, 15, 0.8);
-            backdrop-filter: blur(20px); border: 1px solid rgba(168, 85, 247, 0.4);
+            width: calc(100% - 80px); background: rgba(15, 15, 15, 0.75);
+            backdrop-filter: blur(15px); border: 1px solid rgba(168, 85, 247, 0.3);
             border-radius: 12px; z-index: 3000; display: flex; align-items: center;
             padding: 0 25px; transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
             opacity: 0; pointer-events: none; transform: translateY(100px);
         }
+        #custom-player.minimized { width: 320px; border-radius: 40px; opacity: 0.5; transform: translateY(0); pointer-events: all; }
+        #custom-player.minimized:hover { opacity: 1; border-color: var(--p); }
+        #custom-player.active { opacity: 1; pointer-events: all; transform: translateY(0); }
 
-        #player-container.minimized {
-            width: 300px; border-radius: 40px; opacity: 0.5; transform: translateY(0);
-            background: rgba(10, 10, 10, 0.4); pointer-events: all;
-        }
-        #player-container.minimized:hover { opacity: 1; border-color: var(--p); box-shadow: 0 0 20px rgba(168, 85, 247, 0.2); }
-        #player-container.active { opacity: 1; pointer-events: all; transform: translateY(0); }
+        .play-btn { width: 35px; height: 35px; border: 1px solid var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--p); font-size: 0.7rem; margin-right: 15px; flex-shrink: 0; }
+        .track-info { font-family: 'Syncopate'; font-size: 0.6rem; letter-spacing: 1px; color: #fff; white-space: nowrap; overflow: hidden; }
 
-        .play-btn { width: 35px; height: 35px; border: 1px solid var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--p); font-size: 0.7rem; margin-right: 15px; transition: 0.3s; }
-        .track-info { font-family: 'Syncopate'; font-size: 0.6rem; letter-spacing: 1px; color: #fff; text-transform: uppercase; }
-
-        /* LYRICS */
+        /* LYRICS OVERLAY */
         .lyrics-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; overflow-y: auto; padding: 100px 10% 200px; }
         .lyrics-overlay.active { display: block; }
         .line { display: block; font-size: clamp(1.4rem, 4.5vw, 3.2rem); font-weight: 900; line-height: 1.15; margin-bottom: 10px; opacity: 0; transform: translateY(30px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
         .active .line { opacity: 1; transform: translateY(0); }
         .rus { color: var(--p); }
-        .tag { font-family: 'Syncopate'; font-size: 0.7rem; color: #444; margin: 40px 0 10px; letter-spacing: 4px; }
+        .tag { font-family: 'Syncopate'; font-size: 0.7rem; color: #444; margin: 45px 0 10px; letter-spacing: 6px; }
 
         .close-btn { position: fixed; top: 40px; right: 40px; width: 50px; height: 50px; cursor: pointer; z-index: 2100; }
-        .close-btn span { position: absolute; top: 24px; width: 100%; height: 2px; background: var(--p); transition: 0.5s; }
+        .close-btn span { position: absolute; top: 24px; width: 100%; height: 3px; background: var(--p); border-radius: 10px; transition: 0.5s; }
         .close-btn span:nth-child(1) { transform: rotate(45deg); }
         .close-btn span:nth-child(2) { transform: rotate(-45deg); }
 
-        #yandex-iframe { position: fixed; top: -1000px; width: 614px; height: 556px; }
         #rain { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2050; opacity: 0; transition: 1s; }
     </style>
 </head>
@@ -71,7 +78,7 @@
     <canvas id="rain"></canvas>
     <div class="hero-bg" id="bg"></div>
 
-    <iframe id="yandex-iframe" frameborder="0" allow="clipboard-write; autoplay" src="https://music.yandex.ru/iframe/track/132483842/38089920"></iframe>
+    <audio id="main-audio" src="areyouhappy.mp3"></audio>
 
     <div class="hero">
         <div class="hero-content">
@@ -81,20 +88,20 @@
     </div>
 
     <div class="content">
-        <div class="t-row" onclick="startTrack()">
+        <div class="t-row" onclick="openLyrics()">
             <span>01</span><span>ARE YOU HAPPY</span>
         </div>
         <script>
             const tracks = ["IM ALL BLESSED THE FUCK UP", "BASEMENT", "BODY DOUBLE", "MIRRORS", "CHELSEA SMILE", "444", "PARASOCIAL FREESTYLE", "DESIGNER'S PARADISE", "FIRE WALK WITH ME", "MADAM", "SIRENS", "NAIVE", "DRIVE", "WELCOME TO FOREVER", "0 TEARS", "DAMAGE", "AMY"];
             tracks.forEach((t, i) => {
-                document.write(`<div class="t-row" style="opacity: 0.03"><span>${(i+2).toString().padStart(2, '0')}</span><span>${t}</span></div>`);
+                document.write(`<div class="t-row locked"><span>${(i+2).toString().padStart(2, '0')}</span><span>${t}</span></div>`);
             });
         </script>
     </div>
 
-    <div id="player-container">
-        <div class="play-btn">II</div>
-        <div class="track-info">ARE YOU HAPPY — KAI ANGEL</div>
+    <div id="custom-player">
+        <div class="play-btn" onclick="togglePlay()">II</div>
+        <div class="track-info">ARE YOU HAPPY - KAI ANGEL</div>
     </div>
 
     <div id="lyricsView" class="lyrics-overlay">
@@ -109,7 +116,7 @@
         <span class="line">I don't see your smile (Your smile)</span>
         <span class="line">Your voice just doesn't land</span>
         <span class="line">I'm familiar with your desire</span>
-        <span class="line">And it's very different than what's in your hands</span>
+        <span class="line">And it's very different than what's in your hands (Hold me like)</span>
 
         <div class="tag">[Chorus]</div>
         <span class="line">Ho— ho— ho— hold me like a secret</span>
@@ -119,7 +126,9 @@
         <span class="line">I don't want the truth (Truth)</span>
         <span class="line">I just want a touch (Touch)</span>
         <span class="line">Bleed me slow (Slow)</span>
-        <span class="line">But don't ask for it too much</span>
+        <span class="line">But don't ask for it too much (Too much), yeah</span>
+        <span class="line">Ooh-oh (Oh), oh, ooh-oh (Oh)</span>
+        <span class="line">Bleed me slow, wow, yeah</span>
 
         <div class="tag">[Verse 2]</div>
         <span class="line rus">Окей, держи меня в секрете</span>
@@ -127,71 +136,123 @@
         <span class="line rus">Ты в моих снах буквально каждый день</span>
         <span class="line">I still see your eyes through the rain</span>
         <span class="line">I still feel your scent like a subtle stain</span>
+        <span class="line">You leave ghosts in midnight air</span>
+        <span class="line">It's still on my mind how you</span>
+
+        <div class="tag">[Chorus]</div>
+        <span class="line">Hold me like a secret</span>
+        <span class="line">But scream in my ear (Yeah)</span>
+        <span class="line">Tell me you love me (Do you love me?)</span>
+        <span class="line">Then disappear (Then disappear)</span>
+        <span class="line">I don't want the truth (Truth)</span>
+        <span class="line">I just want a touch (Touch)</span>
+        <span class="line">Bleed me slow (Slow)</span>
+        <span class="line">But don't ask for it too much (Too much)</span>
 
         <div class="tag">[Bridge]</div>
         <span class="line">Baby, I love every surgery you did</span>
         <span class="line">If I was a knife, I would stab somewhere in between</span>
+        <span class="line">Maybe I'm not the one to hold you like this</span>
+        <span class="line">But you…</span>
+
+        <div class="tag">[Chorus]</div>
+        <span class="line">Hold me like a secret</span>
+        <span class="line">You scream in my ear</span>
+        <span class="line">Tell me you love me (Do you love me?), huh</span>
+        <span class="line">Then disappear, yeah</span>
+        <span class="line">I don't want the truth</span>
+        <span class="line">I just want a touch, to— to— touch</span>
+        <span class="line">Bu— bu— but don't ask for it too much (Too much)</span>
+
+        <div class="tag">[Post-Chorus]</div>
+        <span class="line">Hold me like…</span>
+        <span class="line">Hold me like… Secret</span>
 
         <div class="tag">[Outro]</div>
+        <span class="line">But scream in my ear</span>
+        <span class="line">Tell me you love me (Do you love me?)</span>
+        <span class="line">Then disappear (Then disappear)</span>
+        <span class="line">I don't want the truth</span>
+        <span class="line">I just want a touch</span>
         <span class="line">Bleed me slow</span>
-        <span class="line">But don't ask for it too much...</span>
+        <span class="line">But don't ask for it too much (Too mu— too mu—)</span>
     </div>
 
     <script>
-        const player = document.getElementById('player-container');
-        const iframe = document.getElementById('yandex-iframe');
+        const audio = document.getElementById('main-audio');
+        const player = document.getElementById('custom-player');
 
-        function startTrack() {
-            // Чтобы музыка заиграла, мы "перезагружаем" src при клике (это обходит блокировку браузера)
-            const currentSrc = iframe.src;
-            iframe.src = currentSrc; 
-
+        function openLyrics() {
             document.getElementById('lyricsView').classList.add('active');
+            document.getElementById('rain').style.opacity = '1';
             document.body.style.overflow = 'hidden';
+            
+            // Плеер
             player.classList.remove('minimized');
             player.classList.add('active');
-            document.getElementById('rain').style.opacity = '1';
-            
-            // Запуск анимации текста
-            const lines = document.querySelectorAll('.line');
-            lines.forEach((l, i) => l.style.transitionDelay = (i * 0.1) + 's');
+            audio.play(); 
+
             initRain(); drawRain();
+            const lines = document.querySelectorAll('.line');
+            lines.forEach((l, i) => l.style.transitionDelay = (i * 0.03) + 's');
         }
 
         function closeLyrics() {
             document.getElementById('lyricsView').classList.remove('active');
+            document.getElementById('rain').style.opacity = '0';
             document.body.style.overflow = 'auto';
             player.classList.add('minimized');
-            document.getElementById('rain').style.opacity = '0';
         }
 
-        // RAIN & PARALLAX
+        function togglePlay() {
+            const btn = document.querySelector('.play-btn');
+            if (audio.paused) {
+                audio.play();
+                btn.innerText = 'II';
+            } else {
+                audio.pause();
+                btn.innerText = '▶';
+            }
+        }
+
+        // RAIN SYSTEM
         const canvas = document.getElementById('rain');
         const ctx = canvas.getContext('2d');
         let drops = [];
+        let mouseX = 0;
+
         function initRain() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            drops = []; for(let i=0; i<300; i++) drops.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, v:Math.random()*20+15});
+            drops = [];
+            for(let i=0; i<450; i++) drops.push({
+                x: Math.random() * canvas.width, 
+                y: Math.random() * canvas.height, 
+                v: Math.random() * 25 + 20,
+                l: Math.random() * 30 + 10
+            });
         }
+
+        document.addEventListener('mousemove', (e) => { 
+            mouseX = (e.clientX / window.innerWidth - 0.5) * 10; 
+            const x = (e.clientX / window.innerWidth - 0.5) * 40;
+            const y = (e.clientY / window.innerHeight - 0.5) * 40;
+            document.getElementById('bg').style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
+        });
+
         function drawRain() {
             ctx.clearRect(0,0,canvas.width, canvas.height);
-            ctx.strokeStyle = 'rgba(168, 85, 247, 0.5)';
+            ctx.strokeStyle = 'rgba(168, 85, 247, 0.6)'; ctx.lineWidth = 1.5;
             drops.forEach(d => {
-                ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x, d.y+20); ctx.stroke();
-                d.y += d.v; if(d.y > canvas.height) d.y = -20;
+                ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x + mouseX, d.y + d.l); ctx.stroke();
+                d.y += d.v; d.x += mouseX;
+                if(d.y > canvas.height) { d.y = -50; d.x = Math.random() * canvas.width; }
             });
             requestAnimationFrame(drawRain);
         }
 
-        document.addEventListener('mousemove', (e) => {
-            const x = (e.clientX / window.innerWidth - 0.5) * 30;
-            const y = (e.clientY / window.innerHeight - 0.5) * 30;
-            document.getElementById('bg').style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
-        });
-
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
-        }, { threshold: 0.1 });
+        }, { threshold: 0.2 });
         document.querySelectorAll('.t-row').forEach(row => observer.observe(row));
     </script>
 </body>
