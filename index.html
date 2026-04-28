@@ -13,7 +13,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
-        /* FONTS & BG */
+        /* VIGNETTE & BG */
         .vignette { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%); pointer-events: none; z-index: 8; }
         .hero-bg { position: fixed; top: -10%; left: -10%; width: 120%; height: 120%; background: url('Дамагерс.png') center/cover; filter: brightness(0.2); z-index: -1; transition: 0.1s ease-out; }
 
@@ -25,85 +25,43 @@
         .t-row { display: flex; align-items: baseline; padding: 40px 0; border-bottom: 1px solid #111; cursor: pointer; font-family: 'Syncopate'; transition: 0.4s; opacity: 0; transform: translateY(40px); }
         .t-row.visible { opacity: 1; transform: translateY(0); }
         .t-row span:first-child { font-size: 0.7rem; color: var(--p); margin-right: 25px; }
-        .t-row span:last-child { font-size: 1.3rem; letter-spacing: 2px; }
+        .t-row span:last-child { font-size: 1.3rem; letter-spacing: 2px; transition: 0.3s; }
+        .t-row:hover span:last-child { letter-spacing: 8px; color: var(--p); }
 
-        /* DYNAMIC PLAYER BOX */
-        #custom-player {
-            position: fixed;
-            bottom: 40px;
-            left: 40px;
-            height: 60px;
-            width: calc(100% - 80px); /* Полная ширина при открытых лириках */
-            background: rgba(15, 15, 15, 0.7);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(168, 85, 247, 0.3);
-            border-radius: 12px;
-            z-index: 3000;
-            display: flex;
-            align-items: center;
-            padding: 0 25px;
-            transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(100px);
+        /* MORPHING PLAYER */
+        #player-container {
+            position: fixed; bottom: 40px; left: 40px; height: 60px;
+            width: calc(100% - 80px); background: rgba(15, 15, 15, 0.8);
+            backdrop-filter: blur(20px); border: 1px solid rgba(168, 85, 247, 0.4);
+            border-radius: 12px; z-index: 3000; display: flex; align-items: center;
+            padding: 0 25px; transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+            opacity: 0; pointer-events: none; transform: translateY(100px);
         }
 
-        /* Когда игрок вышел из песни (компактный вид) */
-        #custom-player.minimized {
-            width: 320px;
-            border-radius: 40px;
-            opacity: 0.6;
-            transform: translateY(0);
-            pointer-events: all;
-            background: rgba(10, 10, 10, 0.4);
+        #player-container.minimized {
+            width: 300px; border-radius: 40px; opacity: 0.5; transform: translateY(0);
+            background: rgba(10, 10, 10, 0.4); pointer-events: all;
         }
+        #player-container.minimized:hover { opacity: 1; border-color: var(--p); box-shadow: 0 0 20px rgba(168, 85, 247, 0.2); }
+        #player-container.active { opacity: 1; pointer-events: all; transform: translateY(0); }
 
-        #custom-player.minimized:hover {
-            opacity: 1;
-            background: rgba(15, 15, 15, 0.8);
-            border-color: var(--p);
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
-        }
+        .play-btn { width: 35px; height: 35px; border: 1px solid var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--p); font-size: 0.7rem; margin-right: 15px; transition: 0.3s; }
+        .track-info { font-family: 'Syncopate'; font-size: 0.6rem; letter-spacing: 1px; color: #fff; text-transform: uppercase; }
 
-        #custom-player.active {
-            opacity: 1;
-            pointer-events: all;
-            transform: translateY(0);
-        }
-
-        .play-btn {
-            width: 35px; height: 35px;
-            border: 1px solid var(--p);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; color: var(--p);
-            font-size: 0.7rem;
-            margin-right: 15px;
-            transition: 0.3s;
-            flex-shrink: 0;
-        }
-        .play-btn:hover { background: var(--p); color: #000; }
-
-        .track-info {
-            font-family: 'Syncopate';
-            font-size: 0.65rem;
-            letter-spacing: 1px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: #eee;
-        }
-
-        /* LYRICS OVERLAY */
-        .lyrics-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: none; overflow-y: auto; padding: 100px 10% 200px; backdrop-filter: blur(10px); }
+        /* LYRICS */
+        .lyrics-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; overflow-y: auto; padding: 100px 10% 200px; }
         .lyrics-overlay.active { display: block; }
+        .line { display: block; font-size: clamp(1.4rem, 4.5vw, 3.2rem); font-weight: 900; line-height: 1.15; margin-bottom: 10px; opacity: 0; transform: translateY(30px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .active .line { opacity: 1; transform: translateY(0); }
+        .rus { color: var(--p); }
+        .tag { font-family: 'Syncopate'; font-size: 0.7rem; color: #444; margin: 40px 0 10px; letter-spacing: 4px; }
 
         .close-btn { position: fixed; top: 40px; right: 40px; width: 50px; height: 50px; cursor: pointer; z-index: 2100; }
-        .close-btn span { position: absolute; top: 24px; width: 100%; height: 3px; background: var(--p); transition: 0.5s; }
+        .close-btn span { position: absolute; top: 24px; width: 100%; height: 2px; background: var(--p); transition: 0.5s; }
         .close-btn span:nth-child(1) { transform: rotate(45deg); }
         .close-btn span:nth-child(2) { transform: rotate(-45deg); }
 
-        #yandex-frame { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+        #yandex-iframe { position: fixed; top: -1000px; width: 614px; height: 556px; }
         #rain { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2050; opacity: 0; transition: 1s; }
     </style>
 </head>
@@ -113,94 +71,124 @@
     <canvas id="rain"></canvas>
     <div class="hero-bg" id="bg"></div>
 
-    <iframe id="yandex-frame" src="https://music.yandex.ru/iframe/track/132483842/38089920"></iframe>
+    <iframe id="yandex-iframe" frameborder="0" allow="clipboard-write; autoplay" src="https://music.yandex.ru/iframe/track/132483842/38089920"></iframe>
 
     <div class="hero">
         <div class="hero-content">
-            <h1>DAMAGE</h1>
+            <h1 id="title">DAMAGE</h1>
             <p style="font-family: 'Syncopate'; color: var(--p); letter-spacing: 15px; margin-top: 25px; font-size: 0.7rem; opacity: 0.5;">ARCHIVE // 2026</p>
         </div>
     </div>
 
     <div class="content">
-        <div class="t-row" onclick="openTrack('01. ARE YOU HAPPY')">
+        <div class="t-row" onclick="startTrack()">
             <span>01</span><span>ARE YOU HAPPY</span>
         </div>
         <script>
             const tracks = ["IM ALL BLESSED THE FUCK UP", "BASEMENT", "BODY DOUBLE", "MIRRORS", "CHELSEA SMILE", "444", "PARASOCIAL FREESTYLE", "DESIGNER'S PARADISE", "FIRE WALK WITH ME", "MADAM", "SIRENS", "NAIVE", "DRIVE", "WELCOME TO FOREVER", "0 TEARS", "DAMAGE", "AMY"];
             tracks.forEach((t, i) => {
-                document.write(`<div class="t-row" style="opacity: 0.05"><span>${(i+2).toString().padStart(2, '0')}</span><span>${t}</span></div>`);
+                document.write(`<div class="t-row" style="opacity: 0.03"><span>${(i+2).toString().padStart(2, '0')}</span><span>${t}</span></div>`);
             });
         </script>
     </div>
 
-    <div id="custom-player">
-        <div class="play-btn" onclick="toggleMusic()">II</div>
-        <div class="track-info" id="current-track-name">ARE YOU HAPPY — KAI ANGEL</div>
+    <div id="player-container">
+        <div class="play-btn">II</div>
+        <div class="track-info">ARE YOU HAPPY — KAI ANGEL</div>
     </div>
 
     <div id="lyricsView" class="lyrics-overlay">
         <div class="close-btn" onclick="closeLyrics()"><span></span><span></span></div>
-        <div id="lyrics-content">
-             <p style="color:var(--p); font-family:'Syncopate'; margin-bottom:20px;">[LYRICS]</p>
-             <h1 style="font-size: 4vw; margin-bottom: 20px;">Are you happy?</h1>
-             <h1 style="font-size: 4vw; margin-bottom: 20px;">'Cause you look sad...</h1>
-        </div>
+        
+        <div class="tag">[Verse 1]</div>
+        <span class="line">Are you happy? (Are you happy?)</span>
+        <span class="line">'Cause you look sad (Uh-huh)</span>
+        <span class="line">Like a church with no choir (C'mon)</span>
+        <span class="line">Like a God gone mad (Ooh)</span>
+        <span class="line">Like a God gone mad on the edge of the night (Ah)</span>
+        <span class="line">I don't see your smile (Your smile)</span>
+        <span class="line">Your voice just doesn't land</span>
+        <span class="line">I'm familiar with your desire</span>
+        <span class="line">And it's very different than what's in your hands</span>
+
+        <div class="tag">[Chorus]</div>
+        <span class="line">Ho— ho— ho— hold me like a secret</span>
+        <span class="line">But scream in my ear (My ear)</span>
+        <span class="line">Tell me you love me (Do you love me?)</span>
+        <span class="line">Then disappear (Then disappear)</span>
+        <span class="line">I don't want the truth (Truth)</span>
+        <span class="line">I just want a touch (Touch)</span>
+        <span class="line">Bleed me slow (Slow)</span>
+        <span class="line">But don't ask for it too much</span>
+
+        <div class="tag">[Verse 2]</div>
+        <span class="line rus">Окей, держи меня в секрете</span>
+        <span class="line rus">И не рассказывай никому в интернете</span>
+        <span class="line rus">Ты в моих снах буквально каждый день</span>
+        <span class="line">I still see your eyes through the rain</span>
+        <span class="line">I still feel your scent like a subtle stain</span>
+
+        <div class="tag">[Bridge]</div>
+        <span class="line">Baby, I love every surgery you did</span>
+        <span class="line">If I was a knife, I would stab somewhere in between</span>
+
+        <div class="tag">[Outro]</div>
+        <span class="line">Bleed me slow</span>
+        <span class="line">But don't ask for it too much...</span>
     </div>
 
     <script>
-        let isPlaying = false;
-        const player = document.getElementById('custom-player');
+        const player = document.getElementById('player-container');
+        const iframe = document.getElementById('yandex-iframe');
 
-        function openTrack(name) {
-            document.getElementById('current-track-name').innerText = name;
-            
-            // Показываем текст
+        function startTrack() {
+            // Чтобы музыка заиграла, мы "перезагружаем" src при клике (это обходит блокировку браузера)
+            const currentSrc = iframe.src;
+            iframe.src = currentSrc; 
+
             document.getElementById('lyricsView').classList.add('active');
             document.body.style.overflow = 'hidden';
-            
-            // Плеер становится полноразмерным
             player.classList.remove('minimized');
             player.classList.add('active');
-            
-            // Включаем дождь
             document.getElementById('rain').style.opacity = '1';
-            isPlaying = true;
+            
+            // Запуск анимации текста
+            const lines = document.querySelectorAll('.line');
+            lines.forEach((l, i) => l.style.transitionDelay = (i * 0.1) + 's');
+            initRain(); drawRain();
         }
 
         function closeLyrics() {
-            // Убираем текст
             document.getElementById('lyricsView').classList.remove('active');
             document.body.style.overflow = 'auto';
-            
-            // Плеер "схлопывается" в угол
             player.classList.add('minimized');
-            
-            // Убираем дождь
             document.getElementById('rain').style.opacity = '0';
         }
 
-        function toggleMusic() {
-            const btn = document.querySelector('.play-btn');
-            // В данной реализации iframe просто играет, 
-            // так как у Яндекс.Музыки нет внешнего управления паузой через JS.
-            // Но мы меняем иконку для вида.
-            if(isPlaying) {
-                btn.innerText = '▶';
-            } else {
-                btn.innerText = 'II';
-            }
-            isPlaying = !isPlaying;
+        // RAIN & PARALLAX
+        const canvas = document.getElementById('rain');
+        const ctx = canvas.getContext('2d');
+        let drops = [];
+        function initRain() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            drops = []; for(let i=0; i<300; i++) drops.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, v:Math.random()*20+15});
+        }
+        function drawRain() {
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            ctx.strokeStyle = 'rgba(168, 85, 247, 0.5)';
+            drops.forEach(d => {
+                ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x, d.y+20); ctx.stroke();
+                d.y += d.v; if(d.y > canvas.height) d.y = -20;
+            });
+            requestAnimationFrame(drawRain);
         }
 
-        // Parallax
         document.addEventListener('mousemove', (e) => {
             const x = (e.clientX / window.innerWidth - 0.5) * 30;
             const y = (e.clientY / window.innerHeight - 0.5) * 30;
             document.getElementById('bg').style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
         });
 
-        // Intersection Observer
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
         }, { threshold: 0.1 });
